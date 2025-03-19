@@ -1,7 +1,7 @@
 const express = require( 'express' );
 const bodyParser = require('body-parser');
 const app = express();
-const TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.ewogICJ1c2VySWQiIDogIjY4NzQxYjYzLWRkMmQtNGU2Zi1hMGU1LTUwNWQzOGM5MGM3OCIsCiAgInVtYnJlbGxhVXNlcklkIiA6ICJmMjZmZThlYy0yOWIxLTYzMzAtOWIzMC04OWRiNGI0NDljODUiLAogICJ1c2VybmFtZSIgOiAiamFjb2J0b255QGJ4YmQiLAogICJvcmdhbml6YXRpb24iIDogIkJYQkQiLAogICJpc3N1ZWRBdCIgOiAxNzQyMTkyOTI3MTIwLAogICJhY2NvdW50IiA6ICJCWEJEIgp9.AJpAVcb5yTHd0AayCzAxkgISAY-Y2pr9V3C1Yspe4CyRBsDnNBA6bEn7BjxGG_ZSMIx3bllbvRSiI81VLc37vjV5AAuq6smGQbM6X8UkGhCxhLfRgSnelgKkRxKyYxIzUvwM2f0IrnWuIjNC9KR3uL5wTehm6mTRqwPgFaMULFw1N5-V';
+const TOKEN = 'ADD_AUTH_TOKEN_HERE';
 const httpHeaders = {
     'token': TOKEN,
     'organization': 'BRAMBLES',
