@@ -1,10 +1,14 @@
 const express = require( 'express' );
 const bodyParser = require('body-parser');
 const app = express();
-const TOKEN = 'ADD_AUTH_TOKEN_HERE';
-
+const TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.ewogICJ1c2VySWQiIDogIjY4NzQxYjYzLWRkMmQtNGU2Zi1hMGU1LTUwNWQzOGM5MGM3OCIsCiAgInVtYnJlbGxhVXNlcklkIiA6ICJmMjZmZThlYy0yOWIxLTYzMzAtOWIzMC04OWRiNGI0NDljODUiLAogICJ1c2VybmFtZSIgOiAiamFjb2J0b255QGJ4YmQiLAogICJvcmdhbml6YXRpb24iIDogIkJYQkQiLAogICJpc3N1ZWRBdCIgOiAxNzQyMTkyOTI3MTIwLAogICJhY2NvdW50IiA6ICJCWEJEIgp9.AJpAVcb5yTHd0AayCzAxkgISAY-Y2pr9V3C1Yspe4CyRBsDnNBA6bEn7BjxGG_ZSMIx3bllbvRSiI81VLc37vjV5AAuq6smGQbM6X8UkGhCxhLfRgSnelgKkRxKyYxIzUvwM2f0IrnWuIjNC9KR3uL5wTehm6mTRqwPgFaMULFw1N5-V';
+const httpHeaders = {
+    'token': TOKEN,
+    'organization': 'BRAMBLES',
+    'userId': '4b7b4bb9-8821-423c-92fd-0c77a434c0fe',
+    'Content-Type': 'application/json'
+};
 app.use( bodyParser.json() );
-
 
 app.use( (req, res, next) => {
     res.setHeader( 'Access-Control-Allow-Origin', '*' );
@@ -14,68 +18,39 @@ app.use( (req, res, next) => {
 } )
 
 app.post( '/api', ( req, res, next ) => {
-    const { method, url } = req.body;
+    const { method, url, ...requestBody } = req.body;
     let status = 200;
-    if( method === 'POST' ){
-        delete req.body.method;
-        delete req.body.url;
-        fetch( url, {
-            method: 'POST',
-            headers: {
-                'token': TOKEN,
-                'organization': 'BRAMBLES',
-                'userId': '4b7b4bb9-8821-423c-92fd-0c77a434c0fe',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify( req.body )
-        }).then( (response) => {
-            status = response.status;
-            return response.json()
-        } ).then( responseJson => {
-            if( status !== 200 ){
-                const error = new Error( JSON.stringify(responseJson) );
-                error.statusCode = status;
-                throw error
-            }
-            else
-                res.status( 200 ).json( responseJson )
-        } ).catch( error => {
-            next( error )
-        } )
-    }else if( req.body.method === 'GET' ){
-        const queryParamsString = new URLSearchParams( req.body.params );
-        const requestUrl = `${ req.body.url }?${ queryParamsString }`
-        fetch( requestUrl, {
-            method: 'GET',
-            headers: {
-                'token': TOKEN,
-                'organization': 'BRAMBLES',
-                'userId': '4b7b4bb9-8821-423c-92fd-0c77a434c0fe',
-                'Content-Type': 'application/json'
-            },
-        }).then( (response) => {
-            status = response.status;
-            return response.json()
-        } ).then( responseJson => {
-            if( status !== 200 ){
-                const error = new Error( JSON.stringify(responseJson) );
-                error.statusCode = status;
-                throw error
-            }
-            else
-                res.status( 200 ).json( responseJson )
-        } ).catch( error => {
-            next( error )
-        } )
+    switch( method.toLowerCase() ){
+        case 'post':
+            fetch( url, {
+                method,
+                headers: httpHeaders,
+                body: JSON.stringify( requestBody )
+            } ).then( response => {
+                return Promise.all([ response.status, response.json() ])
+            } ).then( ( response ) => handleResponseJson(response, res) );
+            break;
+        case 'get':
+            fetch( url, {
+                method,
+                headers: httpHeaders
+            } ).then( response => {
+                return Promise.all([ response.status, response.json() ])
+            } ).then( ( response ) => handleResponseJson(response, res) );
     }
     
 } )
 
-app.use(( error, req, res, next ) => {
-    const errorBody = JSON.parse(error.message);
-    res.status(error.statusCode || 502).json( errorBody );
-})
-
 app.listen( 3000, () => {
     console.log('Listening on 3000')
 } )
+
+function handleResponseJson( [ status, responseJson ], res ){
+    console.log( status );
+    if( status !== 200 ){
+        const errorBody = responseJson;
+        res.status(status || 502).json( errorBody );
+    }
+    else
+        res.status( 200 ).json( responseJson )
+}
