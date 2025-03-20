@@ -4,8 +4,8 @@ const app = express();
 const TOKEN = 'ADD_AUTH_TOKEN_HERE';
 const httpHeaders = {
     'token': TOKEN,
-    'organization': 'BRAMBLES',
-    'userId': '4b7b4bb9-8821-423c-92fd-0c77a434c0fe',
+    'organization': '****',
+    'userId': '****',
     'Content-Type': 'application/json'
 };
 app.use( bodyParser.json() );
